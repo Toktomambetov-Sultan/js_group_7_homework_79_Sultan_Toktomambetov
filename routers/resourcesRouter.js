@@ -55,7 +55,7 @@ const routerFunction = (db, resource) => {
         const data = (await mysqlTool.getItemsById(resource, req.params.id))[0];
 
         try {
-            data.image && await fs.unlink(config.imageFolder + "/" + data.image, () => { });
+            data.image && await fs.unlink(config.imageFolder + "/" + data.image);
 
             res.send(await mysqlTool.delete(resource, req.params.id));
         } catch (error) {
