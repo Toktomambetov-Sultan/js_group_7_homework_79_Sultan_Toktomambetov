@@ -28,10 +28,9 @@ const routerFunction = (db, resource) => {
         }
     });
     router.get("/" + resource + "/:id", async (req, res) => {
-        const data = (await mysqlTool.getItemsById(resource, req.params.id))[0]
-            || { error: "not found" };
+        const data = (await mysqlTool.getItemsById(resource, req.params.id))[0];
         try {
-            res.send();
+            res.send(data);
         } catch (error) {
             res.status(400).send(error);
         }
@@ -39,10 +38,14 @@ const routerFunction = (db, resource) => {
 
     router.post("/" + resource, upload.single("image"), async (req, res) => {
         const data = { ...req.body, image: req.file ? req.file.filename : null };
+
         try {
+            data.image || delete data.image;
+
             res.send(await mysqlTool.post(resource, data));
         } catch (error) {
-            await fs.unlink(config.imageFolder + "/" + data.image);
+            data.image && await fs.unlink(config.imageFolder + "/" + data.image);
+
             res.status(400).send(error);
 
         }
@@ -50,12 +53,31 @@ const routerFunction = (db, resource) => {
 
     router.delete("/" + resource + "/:id", async (req, res) => {
         const data = (await mysqlTool.getItemsById(resource, req.params.id))[0];
+
         try {
-            console.log(data, data.image);
             data.image && await fs.unlink(config.imageFolder + "/" + data.image, () => { });
+
             res.send(await mysqlTool.delete(resource, req.params.id));
         } catch (error) {
+
             res.status(400).send(error);
+        }
+    });
+
+    router.put("/" + resource + "/:id", upload.single("image"), async (req, res) => {
+        const data = { ...req.body, image: req.file ? req.file.filename : null };
+        const lastResource = (await mysqlTool.getItemsById(resource, req.params.id))[0];
+
+        try {
+            data.image || delete data.image;
+            lastResource.image && await fs.unlink(config.imageFolder + "/" + lastResource.image);
+
+            res.send(await mysqlTool.put(resource, data, req.params.id));
+        } catch (error) {
+            data.image && await fs.unlink(config.imageFolder + "/" + data.image);
+
+            res.status(400).send(error);
+
         }
     });
 

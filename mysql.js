@@ -42,5 +42,16 @@ class MysqlTool {
             });
         });
     }
+    put(table, data, id) {
+        
+        return new Promise((resolve, reject) => {
+            this.db.query('UPDATE ?? SET ? WHERE id=?', [table, data, id], (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                resolve(result);
+            });
+        });
+    }
 }
 module.exports = MysqlTool;
