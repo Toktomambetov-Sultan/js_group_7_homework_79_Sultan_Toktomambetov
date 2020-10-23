@@ -7,5 +7,6 @@ module.exports = {
         user: "root",
         password: "root@root",
         database: "resources"
-    }
+    },
+    resources: ["subject", "categories", "location"]
 };
